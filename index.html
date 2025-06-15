@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>河南驻马店 - 我的家乡</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B5A2B',
+                        secondary: '#D2B48C',
+                        accent: '#CD853F',
+                        light: '#F5F5DC',
+                        dark: '#4A3728'
+                    },
+                    fontFamily: {
+                        sans: ['PingFang SC', 'Helvetica Neue', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            .mask-gradient {
+                background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+            }
+            .page-transition {
+                transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+        }
+    </style>
+    <style>
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .page {
+            height: 100vh;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.8s ease-in-out;
+        }
+        
+        .current {
+            transform: translateY(0);
+            z-index: 10;
+        }
+        
+        .next {
+            transform: translateY(100%);
+            z-index: 5;
+        }
+        
+        .prev {
+            transform: translateY(-100%);
+            z-index: 5;
+        }
+        
+        /* 动画关键帧 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 1s ease-out forwards;
+        }
+        
+        .animate-slideUp {
+            animation: slideUp 0.8s ease-out forwards;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+        .delay-700 { animation-delay: 0.7s; }
+        .delay-800 { animation-delay: 0.8s; }
+        .delay-900 { animation-delay: 0.9s; }
+        .delay-1000 { animation-delay: 1s; }
+        
+        .mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.3);
+            z-index: 1;
+        }
+        
+        /* 音乐控制 */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .music-control i {
+            color: white;
+            font-size: 20px;
+        }
+        
+        .music-control.playing i {
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 下一页按钮 */
+        .next-page-btn {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .next-page-btn:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+        
+        .next-page-btn i {
+            color: white;
+            font-size: 24px;
+        }
+        
+        /* 图片滑块 */
+        .image-slider {
+            display: flex;
+            width: 100%;
+            height: 200px;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .image-slide {
+            min-width: 100%;
+            height: 100%;
+            scroll-snap-align: start;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* 导航点 */
+        .nav-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 50;
+        }
+        
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-dot.active {
+            background-color: white;
+            transform: scale(1.2);
+        }
+        
+        /* 景点卡片 */
+        .scenic-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            height: 200px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .scenic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .scenic-card .mask {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scenic-card:hover .mask {
+            opacity: 0.5;
+        }
+        
+        .scenic-card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 16px;
+            z-index: 10;
+        }
+        
+        /* 景点详情弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-light text-dark">
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 音乐控制按钮 -->
+    <div id="musicBtn" class="music-control">
+        <i class="fa fa-music"></i>
+    </div>
+    
+    <!-- 导航点 -->
+    <div class="nav-dots">
+        <div class="nav-dot active" data-page="0"></div>
+        <div class="nav-dot" data-page="1"></div>
+        <div class="nav-dot" data-page="2"></div>
+        <div class="nav-dot" data-page="3"></div>
+        <div class="nav-dot" data-page="4"></div>
+    </div>
+    
+    <!-- 景点详情弹窗 -->
+    <div id="scenicModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div id="modalImage" class="absolute inset-0 bg-cover bg-center"></div>
+                <div class="mask mask-gradient"></div>
+                <div class="modal-close" id="closeModal">
+                    <i class="fa fa-times"></i>
+                </div>
+                <h3 id="modalTitle" class="absolute bottom-10 left-6 text-2xl font-bold text-white text-shadow"></h3>
+            </div>
+            <div class="p-6">
+                <p id="modalDescription" class="text-gray-700"></p>
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                    <div class="bg-primary/10 rounded-lg p-3">
+                        <p class="text-primary font-bold text-sm">景点等级</p>
+                        <p id="modalLevel" class="text-gray-700"></p>
+                    </div>
+                    <div class="bg-primary/10 rounded-lg p-3">
+                        <p class="text-primary font-bold text-sm">最佳季节</p>
+                        <p id="modalSeason" class="text-gray-700"></p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a id="modalLink" href="#" target="_blank" class="inline-block bg-primary hover:bg-primary/80 text-white font-bold py-2 px-4 rounded-full transition-all duration-300">
+                        查看详情
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页面容器 -->
+    <div id="pageContainer">
+        <!-- 第一页：欢迎页 -->
+        <div class="page current" id="page0">
+            <div class="mask mask-gradient"></div>
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://img0.baidu.com/it/u=3033629931,3743635780&fm=253&fmt=auto&app=138&f=JPEG?w=760&h=853');"></div>
+            <div class="container relative z-10 text-center px-6">
+                <h1 class="text-[clamp(2.5rem,8vw,4rem)] font-bold text-white text-shadow animate-fadeIn mb-4">河南驻马店</h1>
+                <p class="text-[clamp(1.2rem,4vw,1.8rem)] text-white text-shadow animate-fadeIn delay-300 mb-8">我的家乡</p>
+                <div class="animate-float animate-fadeIn delay-600">
+                    <i class="fa fa-map-marker text-white text-[clamp(2rem,6vw,3rem)]"></i>
+                </div>
+            </div>
+            <div class="next-page-btn animate-pulse" data-target="1">
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <!-- 第二页：地理位置 -->
+        <div class="page next" id="page1">
+            <div class="mask mask-gradient"></div>
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://img0.baidu.com/it/u=1153639081,744816945&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=653');"></div>
+            <div class="container relative z-10 px-6">
+                <h2 class="text-[clamp(1.8rem,6vw,2.5rem)] font-bold text-white text-shadow animate-fadeIn mb-6 text-center">地理位置</h2>
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 animate-fadeIn delay-200">
+                    <p class="text-white text-[clamp(1rem,3vw,1.2rem)] mb-4">
+                        驻马店市位于河南省中南部，地处淮河流域。这里古为交通要冲，因历史上南来北往的信使、官宦在此驻驿歇马而得名。
+                    </p>
+                    <p class="text-white text-[clamp(1rem,3vw,1.2rem)]">
+                        驻马店承东启西，贯南通北，素有"豫州之腹地、天下之最中"的美称。现辖9县1区，总人口近900万，总面积1.5万平方公里。
+                    </p>
+                </div>
+                <div class="mt-8 flex justify-center animate-fadeIn delay-400">
+                    <div class="bg-white/20 backdrop-blur-md rounded-full p-4">
+                        <i class="fa fa-globe text-white text-[clamp(2.5rem,8vw,3.5rem)]"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="next-page-btn animate-pulse" data-target="2">
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <!-- 第三页：历史文化 -->
+        <div class="page next" id="page2">
+            <div class="mask mask-gradient"></div>
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://picsum.photos/id/1031/800/1200');"></div>
+            <div class="container relative z-10 px-6">
+                <h2 class="text-[clamp(1.8rem,6vw,2.5rem)] font-bold text-white text-shadow animate-fadeIn mb-6 text-center">历史文化</h2>
+                
+                <div class="image-slider animate-fadeIn delay-200">
+                    <div class="image-slide" style="background-image: url('https://picsum.photos/id/1028/800/500');"></div>
+                    <div class="image-slide" style="background-image: url('https://picsum.photos/id/1029/800/500');"></div>
+                    <div class="image-slide" style="background-image: url('https://picsum.photos/id/1030/800/500');"></div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mt-6 animate-fadeIn delay-400">
+                    <p class="text-white text-[clamp(1rem,3vw,1.2rem)] mb-4">
+                        驻马店历史悠久，是华夏文明的重要发祥地之一。早在新石器时代，这里就有人类繁衍生息。
+                    </p>
+                    <p class="text-white text-[clamp(1rem,3vw,1.2rem)]">
+                        境内有距今1.8万年的打石山旧石器遗址、春秋蔡国故城、战国冶铁遗址、南北朝时期的宝严寺塔等历史遗迹。
+                    </p>
+                </div>
+            </div>
+            <div class="next-page-btn animate-pulse" data-target="3">
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <!-- 第四页：自然风光 -->
+        <div class="page next" id="page3">
+            <div class="mask mask-gradient"></div>
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://picsum.photos/id/1036/800/1200');"></div>
+            <div class="container relative z-10 px-6">
+                <h2 class="text-[clamp(1.8rem,6vw,2.5rem)] font-bold text-white text-shadow animate-fadeIn mb-6 text-center">自然风光</h2>
+                
+                <div class="grid grid-cols-2 gap-4 animate-fadeIn delay-200">
+                    <div class="scenic-card" data-id="chayashan">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://picsum.photos/id/1039/800/600');"></div>
+                        <div class="mask mask-gradient"></div>
+                        <div class="scenic-card-content">
+                            <h3 class="text-white font-bold text-xl">嵖岈山</h3>
+                            <p class="text-white/80 text-sm">中原盆景</p>
+                        </div>
+                    </div>
+                    
+                    <div class="scenic-card" data-id="tongshan">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://img1.baidu.com/it/u=2291087026,913296206&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667');"></div>
+                        <div class="mask mask-gradient"></div>
+                        <div class="scenic-card-content">
+                            <h3 class="text-white font-bold text-xl">铜山</h3>
+                            <p class="text-white/80 text-sm">险奇秀怪</p>
+                        </div>
+                    </div>
+                    
+                    <div class="scenic-card" data-id="bosh山湖">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://img0.baidu.com/it/u=2114418141,1523540042&fm=253&fmt=auto&app=120&f=JPEG?w=1186&h=800');"></div>
+                        <div class="mask mask-gradient"></div>
+                        <div class="scenic-card-content">
+                            <h3 class="text-white font-bold text-xl">薄山湖</h3>
+                            <p class="text-white/80 text-sm">天然氧吧</p>
+                        </div>
+                    </div>
+                    
+                    <div class="scenic-card" data-id="jindingshan">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://img1.baidu.com/it/u=2873502082,486882272&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=506');"></div>
+                        <div class="mask mask-gradient"></div>
+                        <div class="scenic-card-content">
+                            <h3 class="text-white font-bold text-xl">金顶山</h3>
+                            <p class="text-white/80 text-sm">森林王国</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mt-6 animate-fadeIn delay-400">
+                    <p class="text-white text-[clamp(1rem,3vw,1.2rem)]">
+                        驻马店自然风光秀丽，旅游资源丰富。嵖岈山被誉为"中原盆景"，是国家5A级旅游景区；薄山湖素有"天然生态公园"之称；铜山以"险、奇、秀、怪"著称；金顶山则是一片原始森林王国。
+                    </p>
+                </div>
+            </div>
+            <div class="next-page-btn animate-pulse" data-target="4">
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <!-- 第五页：美食与特产 -->
+        <div class="page next" id="page4">
+            <div class="mask mask-gradient"></div>
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://img1.baidu.com/it/u=193144276,1088014661&fm=253&fmt=auto&app=138&f=JPEG?w=456&h=810');"></div>
+            <div class="container relative z-10 px-6">
+                <h2 class="text-[clamp(1.8rem,6vw,2.5rem)] font-bold text-white text-shadow animate-fadeIn mb-6 text-center">美食与特产</h2>
+                
+                <div class="space-y-4 animate-fadeIn delay-200">
+                    <div class="bg-white/10 backdrop-blur-md rounded-lg p-4 flex items-center">
+                        <div class="w-20 h-20 rounded-full bg-cover bg-center mr-4" style="background-image: url('https://picsum.photos/id/291/200/200');"></div>
+                        <div>
+                            <h3 class="text-white font-bold text-lg">确山板栗</h3>
+                            <p class="text-white/80 text-sm">个大皮薄，色泽鲜艳，味道甘甜</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white/10 backdrop-blur-md rounded-lg p-4 flex items-center">
+                        <div class="w-20 h-20 rounded-full bg-cover bg-center mr-4" style="background-image: url('https://picsum.photos/id/431/200/200');"></div>
+                        <div>
+                            <h3 class="text-white font-bold text-lg">正阳花生</h3>
+                            <p class="text-white/80 text-sm">籽饱果大，含油量高，营养丰富</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white/10 backdrop-blur-md rounded-lg p-4 flex items-center">
+                        <div class="w-20 h-20 rounded-full bg-cover bg-center mr-4" style="background-image: url('https://picsum.photos/id/493/200/200');"></div>
+                        <div>
+                            <h3 class="text-white font-bold text-lg">泌阳花菇</h3>
+                            <p class="text-white/80 text-sm">朵大、肉厚、含水量低，香味浓郁</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center animate-fadeIn delay-400">
+                    <a href="#" class="inline-block bg-accent hover:bg-accent/80 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                        欢迎来驻马店
+                    </a>
+                </div>
+            </div>
+            <div class="next-page-btn animate-pulse" data-target="0">
+                <i class="fa fa-chevron-up"></i>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 页面切换逻辑
+        const pageContainer = document.getElementById('pageContainer');
+        const pages = document.querySelectorAll('.page');
+        const nextPageBtns = document.querySelectorAll('.next-page-btn');
+        const navDots = document.querySelectorAll('.nav-dot');
+        let currentPage = 0;
+        
+        // 音乐控制
+        const bgMusic = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        let isMusicPlaying = false;
+        
+        // 景点数据
+        const scenicSpots = {
+            chayashan: {
+                title: '嵖岈山',
+                image: 'https://picsum.photos/id/1039/800/600',
+                description: '嵖岈山风景区位于河南省驻马店市遂平县境内，系伏牛山东缘余脉，因山势嵯峨、怪石林立而得名，享有"中州盆景"、"江北石林"之美誉。景区总面积148平方公里，主景区面积50平方公里，海拔786米，是国家AAAAA级旅游区、国家地质公园、国家森林公园、河南省首批文明景区、全省首批旅游标准化示范景区。',
+                level: '国家5A级景区',
+                season: '春秋季',
+                link: 'https://baike.baidu.com/item/%E5%B5%8C%E5%B5%8E%E5%B1%B1/133442'
+            },
+            tongshan: {
+                title: '铜山',
+                image: 'https://img2.baidu.com/it/u=1073635418,2559133760&fm=253&fmt=auto&app=120&f=JPEG?w=748&h=1215',
+                description: '铜山位于河南省驻马店市泌阳县境内，南依桐柏山，东连确山，北和伏牛山遥遥相望 ，驻马店至南阳的高等级公路横贯境内。自古以"险似华山，秀似黄山"而被冠为"小武当"之称。数百年来，有"南朝金顶，北偈铜峰"之说。海拔632.6米，原名大复山，因汉代邓通在此铸钱而得名。其山势陡峭、岗峦碧翠、云雾缭绕、洞谷幽深、林草茂密、怪石嶙峋。',
+                level: '国家4A级景区',
+                season: '全年',
+                link: 'https://baike.baidu.com/item/%E9%93%9C%E5%B1%B1/1084452'
+            },
+            bosh山湖: {
+                title: '薄山湖',
+                image: 'https://img2.baidu.com/it/u=1288018785,1357982038&fm=253&fmt=auto&app=120&f=JPEG?w=1465&h=800',
+                description: '薄山湖风景名胜区位于河南省驻马店市确山县境内，景区面积240平方公里，森林覆盖率92%，湖面22平方公里，库容6.2亿立方米。景区内群峰苍翠，碧水千曲，人文景观和自然景观美不胜收，有"天然生态公园"、"中原漓江"之美誉。薄山湖水质纯净，环境幽雅，是动植物繁衍生息的天堂。区内现有植物1400多种，其中马尾松、美国火炬松、水杉、银杏等为国家重点保护植物；野生动物近百种，其中有白冠长尾雉、金雕、大天鹅等国家一级保护动物。',
+                level: '国家4A级景区',
+                season: '夏季',
+                link: 'https://baike.baidu.com/item/%E8%96%84%E5%B1%B1%E6%B9%96/1084456'
+            },
+            jindingshan: {
+                title: '金顶山',
+                image: 'https://img1.baidu.com/it/u=1234490429,2482936099&fm=253&fmt=auto&app=138&f=JPEG?w=633&h=446',
+                description: '金顶山风景区位于河南省驻马店市确山县蚁蜂镇境内，距驻马店市、京广铁路、京珠高速、107国道20余公里，面积约71平方公里，境内大小山峰6座。景区处暖温带与亚热带过度地带，系河南省保护较好的省级森林公园，有"天然氧吧"，"绿色家园"之美誉。 景区内古树参天，谷深峰险，一派原始风貌。迎客门古风古韵，小木屋典雅别致，金沙湖碧波荡漾，黑龙潭幽深碧透，神龟探幽妙趣横生，鲸鱼戏水栩栩如生，石虎、石马、石鸟、石龟形态逼真。望情石、望夫岭诉说着人间的悲欢离合，观音洞、金扇佛经堪称道教文化之瑰宝。',
+                level: '国家3A级景区',
+                season: '春秋季',
+                link: 'https://baike.baidu.com/item/%E9%87%91%E9%A1%B6%E5%B1%B1/1084458'
+            }
+        };
+        
+        // 景点详情弹窗
+        const modal = document.getElementById('scenicModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalLevel = document.getElementById('modalLevel');
+        const modalSeason = document.getElementById('modalSeason');
+        const modalLink = document.getElementById('modalLink');
+        const closeModal = document.getElementById('closeModal');
+        const scenicCards = document.querySelectorAll('.scenic-card');
+        
+        // 初始化音乐
+        function initMusic() {
+            // 自动播放策略要求用户交互后才能播放音频
+            musicBtn.addEventListener('click', toggleMusic);
+            
+            // 检测用户是否有任何交互，然后尝试播放音乐
+            document.addEventListener('touchstart', function startMusic() {
+                playMusic();
+                document.removeEventListener('touchstart', startMusic);
+            }, { once: true });
+        }
+        
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        }
+        
+        function playMusic() {
+            bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                musicBtn.classList.add('playing');
+            }).catch(error => {
+                console.log('播放失败:', error);
+            });
+        }
+        
+        function pauseMusic() {
+            bgMusic.pause();
+            isMusicPlaying = false;
+            musicBtn.classList.remove('playing');
+        }
+        
+        // 页面切换
+        function goToPage(index) {
+            // 防止越界
+            if (index < 0) index = 0;
+            if (index >= pages.length) index = pages.length - 1;
+            
+            // 移除当前页面的类
+            pages[currentPage].classList.remove('current');
+            pages[currentPage].classList.add('prev');
+            
+            // 设置新页面
+            pages[index].classList.remove('next', 'prev');
+            pages[index].classList.add('current');
+            
+            // 更新剩余页面
+            for (let i = 0; i < pages.length; i++) {
+                if (i !== currentPage && i !== index) {
+                    pages[i].classList.remove('current', 'prev');
+                    pages[i].classList.add('next');
+                }
+            }
+            
+            // 更新导航点
+            navDots.forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+            
+            currentPage = index;
+        }
+        
+        // 打开景点详情弹窗
+        function openScenicModal(id) {
+            const spot = scenicSpots[id];
+            if (spot) {
+                modalImage.style.backgroundImage = `url(${spot.image})`;
+                modalTitle.textContent = spot.title;
+                modalDescription.textContent = spot.description;
+                modalLevel.textContent = spot.level;
+                modalSeason.textContent = spot.season;
+                modalLink.href = spot.link;
+                
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // 防止背景滚动
+            }
+        }
+        
+        // 关闭景点详情弹窗
+        function closeScenicModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // 恢复背景滚动
+        }
+        
+        // 初始化下一页按钮
+        nextPageBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = parseInt(btn.dataset.target);
+                goToPage(target);
+            });
+        });
+        
+        // 初始化导航点
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const target = parseInt(dot.dataset.page);
+                goToPage(target);
+            });
+        });
+        
+        // 初始化景点卡片点击事件
+        scenicCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.dataset.id;
+                openScenicModal(id);
+            });
+        });
+        
+        // 关闭弹窗事件
+        closeModal.addEventListener('click', closeScenicModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeScenicModal();
+            }
+        });
+        
+        // 滑动切换页面
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+        
+        document.addEventListener('touchend', e => {
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, false);
+        
+        function handleSwipe() {
+            const swipeThreshold = 50; // 最小滑动距离
+            
+            if (touchEndY < touchStartY - swipeThreshold) {
+                // 上滑
+                goToPage(currentPage + 1);
+            } else if (touchEndY > touchStartY + swipeThreshold) {
+                // 下滑
+                goToPage(currentPage - 1);
+            }
+        }
+        
+        // 初始化
+        initMusic();
+        
+        // 预加载所有图片
+        document.addEventListener('DOMContentLoaded', () => {
+            const images = document.querySelectorAll('.bg-cover');
+            const imageUrls = Array.from(images).map(img => {
+                return img.style.backgroundImage.replace('url("', '').replace('")', '');
+            });
+            
+            // 预加载景点图片
+            Object.values(scenicSpots).forEach(spot => {
+                imageUrls.push(spot.image);
+            });
+            
+            imageUrls.forEach(url => {
+                if (url) {
+                    const img = new Image();
+                    img.src = url;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+    
