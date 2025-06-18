@@ -335,7 +335,26 @@
             cursor: pointer;
             z-index: 10;
         }
+      
     </style>
+    <style>
+        @keyframes carRide {
+          0%   { left: -100px; transform: rotateY(0deg); }
+          50%  { left: calc(100% - 50px); transform: rotateY(180deg); }
+          100% { left: -100px; transform: rotateY(0deg); }
+        }
+      
+        .car {
+          position: absolute;
+          bottom: 200px;
+          left: -100px;
+          width: 80px;
+          height: 80px;
+          background: url('https://img1.baidu.com/it/u=3267873870,3391564907&fm=253&fmt=auto') no-repeat center/contain;
+          animation: carRide 15s linear infinite;
+          z-index: 20; /* 确保在文字和遮罩之上 */
+        }
+      </style>
 </head>
 <body class="bg-light text-dark">
     <!-- 背景音乐 -->
@@ -355,6 +374,7 @@
         <div class="nav-dot" data-page="2"></div>
         <div class="nav-dot" data-page="3"></div>
         <div class="nav-dot" data-page="4"></div>
+        <div class="nav-dot" data-page="5"></div>
     </div>
     
     <!-- 景点详情弹窗 -->
@@ -393,6 +413,7 @@
     <div id="pageContainer">
         <!-- 第一页：欢迎页 -->
         <div class="page current" id="page0">
+            <div class="car"></div>
             <div class="mask mask-gradient"></div>
             <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://img0.baidu.com/it/u=3033629931,3743635780&fm=253&fmt=auto&app=138&f=JPEG?w=760&h=853');"></div>
             <div class="container relative z-10 text-center px-6">
@@ -418,7 +439,7 @@
                         驻马店市位于河南省中南部，地处淮河流域。这里古为交通要冲，因历史上南来北往的信使、官宦在此驻驿歇马而得名。
                     </p>
                     <p class="text-white text-[clamp(1rem,3vw,1.2rem)]">
-                        驻马店承东启西，贯南通北，素有"豫州之腹地、天下之最中"的美称。现辖9县1区，总人口近900万，总面积1.5万平方公里。
+                        驻马店承东启西，贯南通北，素有"豫州之腹地、天下之最中"之美称。现辖9县1区，总人口近900万，总面积1.5万平方公里。
                     </p>
                 </div>
                 <div class="mt-8 flex justify-center animate-fadeIn delay-400">
@@ -554,10 +575,26 @@
                     </a>
                 </div>
             </div>
+            <div class="next-page-btn animate-pulse" data-target="5">
+                <i class="fa fa-chevron-down"></i>
+              </div>
+        </div>
+        <!-- 结束页 -->
+        <div class="page next" id="page5">
+            <div class="mask mask-gradient"></div>
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://qnam.smzdm.com/202502/20/67b71be24bc8b6573.jpg_e1080.jpg');"></div>
+            <div class="container relative z-10 px-6 flex flex-col justify-center items-center h-full">
+                <h2 class="text-[clamp(2rem,8vw,3rem)] font-bold text-white text-shadow animate-fadeIn mb-8 text-center">感谢观看！</h2>
+                <p class="text-white/90 text-lg text-center max-w-3xl mb-12">驻马店，一座充满魅力与活力的城市，期待您的到来，共同探索更多精彩！</p>
+                <a href="#" class="inline-block bg-accent hover:bg-accent/80 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                    再次欢迎
+                </a>
+            </div>
             <div class="next-page-btn animate-pulse" data-target="0">
                 <i class="fa fa-chevron-up"></i>
             </div>
         </div>
+        
     </div>
     
     <script>
@@ -602,7 +639,7 @@
             jindingshan: {
                 title: '金顶山',
                 image: 'https://img1.baidu.com/it/u=1234490429,2482936099&fm=253&fmt=auto&app=138&f=JPEG?w=633&h=446',
-                description: '金顶山风景区位于河南省驻马店市确山县蚁蜂镇境内，距驻马店市、京广铁路、京珠高速、107国道20余公里，面积约71平方公里，境内大小山峰6座。景区处暖温带与亚热带过度地带，系河南省保护较好的省级森林公园，有"天然氧吧"，"绿色家园"之美誉。 景区内古树参天，谷深峰险，一派原始风貌。迎客门古风古韵，小木屋典雅别致，金沙湖碧波荡漾，黑龙潭幽深碧透，神龟探幽妙趣横生，鲸鱼戏水栩栩如生，石虎、石马、石鸟、石龟形态逼真。望情石、望夫岭诉说着人间的悲欢离合，观音洞、金扇佛经堪称道教文化之瑰宝。',
+                description: '金顶山风景区位于河南省驻马店市确山县蚁蜂镇境内，距驻马店市、京广铁路、京珠高速、107国道20余公里，面积约71平方公里，境内大小山峰6座。景区处暖温带与亚热带过度地带，系河南省保护较好的省级森林公园，有"天然氧吧"，"绿色家园"之美誉。 景区内古树参天，谷深峰险，一派原始风貌。迎客门古风古韵，小木屋典雅别致，金沙湖碧波荡漾，黑龙潭幽深碧透，神龟探幽妙趣横生，鲸鱼戏水栩栩如生，石虎、石马、石鸟、石龟形态逼真。望情石、望夫岭诉说着人间的悲欢离合，观音洞、金扇佛经自称道教文化之瑰宝。',
                 level: '国家3A级景区',
                 season: '春秋季',
                 link: 'https://baike.baidu.com/item/%E9%87%91%E9%A1%B6%E5%B1%B1/1084458'
